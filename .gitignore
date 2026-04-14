@@ -1,0 +1,26 @@
+# Virtual environments
+.venv/
+venv/
+backend/venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Models & embeddings
+models/
+*.bin
+*.pt
+*.gguf
+faiss_index/
+vectorstore/
+
+# Env files
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log

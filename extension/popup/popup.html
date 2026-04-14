@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAG Visual Chatbot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0e17;
+      color: #e2e8f0;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .header h1 { font-size: 14px; font-weight: 700; color: #c7d2fe; }
+    .header p { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+    .status-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .status-label { font-size: 12px; color: #9ca3af; }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-checking { background: rgba(234,179,8,0.15); color: #fbbf24; }
+    .badge-online { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .badge-offline { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    .section {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .section h2 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6366f1;
+      margin-bottom: 10px;
+    }
+
+    .step {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(99,102,241,0.2);
+      color: #818cf8;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step p { font-size: 12px; color: #9ca3af; line-height: 1.5; }
+    .step strong { color: #e2e8f0; }
+
+    .model-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .model-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .model-name { font-size: 12px; font-weight: 600; color: #c7d2fe; }
+    .model-desc { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+    .footer {
+      padding: 12px 16px;
+      text-align: center;
+    }
+
+    .footer p { font-size: 11px; color: #374151; }
+
+    button.check-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      background: linear-gradient(135deg, #4338ca, #6366f1);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🤖</div>
+    <div>
+      <h1>RAG Visual Chatbot</h1>
+      <p>Local AI · Free · Unlimited</p>
+    </div>
+  </div>
+
+  <div class="status-section">
+    <div class="status-row">
+      <span class="status-label">Flask Backend</span>
+      <span class="badge badge-checking" id="backend-status">Checking...</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">Indexed Docs</span>
+      <span class="badge badge-checking" id="doc-count">—</span>
+    </div>
+    <button class="check-btn" id="check-btn">Check Status</button>
+  </div>
+
+  <div class="section">
+    <h2>How to Use</h2>
+    <div class="step"><div class="step-num">1</div><p>Hover over any <strong>image</strong> on a webpage</p></div>
+    <div class="step"><div class="step-num">2</div><p>Click <strong>Analyze Image</strong> on the tooltip</p></div>
+    <div class="step"><div class="step-num">3</div><p>Ask questions in the <strong>chatbot panel</strong></p></div>
+    <div class="step"><div class="step-num">4</div><p>AI retrieves context and answers using <strong>local LLM</strong></p></div>
+  </div>
+
+  <div class="section">
+    <h2>Free Local Models</h2>
+    <div class="model-list">
+      <div class="model-item">
+        <div class="model-name">BLIP (Image Captioning)</div>
+        <div class="model-desc">Salesforce/blip-image-captioning-base · ~990MB</div>
+      </div>
+      <div class="model-item">
+        <div class="model-name">all-MiniLM-L6-v2 (Embeddings)</div>
+        <div class="model-desc">sentence-transformers · ~80MB · No API key</div>
+      </div>
+      <div class="model-item">
+        <div class="model-name">Llama 3.2 via Ollama (LLM)</div>
+        <div class="model-desc">Free, local, unlimited · ~2GB</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>All processing is local. No data sent to external APIs.</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
