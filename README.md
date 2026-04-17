@@ -1,78 +1,65 @@
-# 🌿 Visual RAG Chatbot — Browser Extension
+# Visual RAG Chatbot (Browser Extension)
 
-An experiment I built to answer a simple question:
+A Chrome extension that lets you ask questions about any image on a webpage.
 
-> “What if you could ask questions about any image on the internet, especially on Pinterest, and get meaningful answers instantly?”
-
-This project is a Chrome extension + local AI backend that lets you do exactly that.
-
-Hover over any image on a webpage, click **Analyse**, and start asking questions. The system combines visual understanding, page context, and web knowledge to give grounded answers — all running locally.
+Hover over an image, click **Analyse**, and start asking questions. The system uses a mix of image understanding, page context, and retrieval to generate answers, all running locally.
 
 ---
 
-##  Why I built this
+## Why I built this
 
-Most tools today:
 
-- Either understand images  
-- Or retrieve information  
+Personally, I used to get curious about the images I see on Pinterest when I use it during my leisure time. Usually I look at the images and get intrigued, where is this place? Can this flower survive in my country? Oh it looks nice, what's the name of this food? Aww the animal looks too cute what is the name of it? But the only way I could learn more the images is by using external tools like Google lens. So I decided to build my own system that can be used for learning about the image without having to leave the website I'm currently using. 
 
-Very few actually **combine both in a meaningful way**.
+Most tools either:
+- understand images  
+- or retrieve information  
 
-I wanted to explore:
-
-- How far I can push a fully local RAG system  
-- Whether combining vision + retrieval + LLMs can give better answers  
-- And how this would work directly inside a browser  
+I wanted to explore what happens when you combine both in a single system, especially in a real-world setting like a browser. 
 
 ---
 
-##  What it can do
+## What it does
 
-- Ask *“Who is this person?”* on a news image  
-- Ask *“Explain this outfit”* on Pinterest  
-- Ask *“What are the features?”* on a product page  
+- Ask “Who is this person?” on a news image  
+- Ask “Explain this outfit” on Pinterest  
+- Ask “What are the features?” on a product page  
 
-The answers are not just guesses — they’re built from:
-
-- Image understanding  
-- Page content  
-- Live web context  
-
----
-
-##  How it works (high level)
-
-### When you click Analyse:
-
-- The image is described using a vision model  
-- Relevant page content is extracted  
-- Extra context is pulled from web search  
-- Everything is embedded and stored  
-
-### When you ask a question:
-
-- The system retrieves the most relevant pieces  
-- Feeds them into a local LLM  
-- Generates a grounded answer  
-
-> Note: Some internal logic is intentionally abstracted — the goal is to show system design, not expose every implementation detail.
+The responses are generated using:
+- image understanding  
+- page content  
+- additional retrieved context  
 
 ---
 
-##  Tech used
+## How it works
 
-- **Ollama** → runs models locally  
-- **Llama 3.2** → answer generation  
-- **Moondream** → image understanding  
-- **Sentence Transformers** → embeddings  
-- **FAISS** → vector search  
-- **Flask** → backend  
-- **Chrome Extension (Manifest V3)** → frontend  
+When you click **Analyse**:
+- The image is processed using a vision model  
+- Page content is extracted  
+- Additional context is retrieved  
+- Everything is stored for querying  
+
+When you ask a question:
+- Relevant context is retrieved  
+- Passed to a local LLM  
+- A response is generated  
 
 ---
 
-## ️ Setup (quick)
+## Tech Stack
+
+- Ollama (local models)
+- Llama 3.2 (LLM)
+- Moondream (vision)
+- Sentence Transformers (embeddings)
+- FAISS (vector search)
+- Flask (backend)
+- Chrome Extension (Manifest V3)
+
+---
+
+## Setup
 
 ```bash
 # install models
@@ -83,6 +70,6 @@ ollama pull moondream
 cd backend
 python -m venv venv
 venv\Scripts\activate   # Windows
-pip install -r requirements.txt
 
+pip install -r requirements.txt
 python app.py
