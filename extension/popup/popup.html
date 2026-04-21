@@ -1,187 +1,447 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RAG Visual Chatbot</title>
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --olive:       #6b7c45;
+      --olive-light: #8a9e5a;
+      --olive-pale:  #c8d4a8;
+      --olive-dust:  #e8eed8;
+      --cream:       #f5f2ea;
+      --cream-dark:  #ede8dc;
+      --forest:      #2d3a1e;
+      --bark:        #4a3728;
+      --sage:        #9aad7e;
+      --terracotta:  #c4734a;
+      --mist:        #f0ede4;
+      --text-main:   #2d3a1e;
+      --text-mid:    #5a6b42;
+      --text-soft:   #8a9870;
+    }
+
     body {
       width: 300px;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f0e17;
-      color: #e2e8f0;
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-main);
     }
 
+    /* ── Header ────────────────────────────────────────────────── */
     .header {
-      background: linear-gradient(135deg, #1e1b4b, #312e81);
-      padding: 16px;
+      background: var(--forest);
+      padding: 14px 16px 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
     }
 
-    .logo {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    .header h1 { font-size: 14px; font-weight: 700; color: #c7d2fe; }
-    .header p { font-size: 11px; color: #6b7280; margin-top: 2px; }
-
-    .status-section {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .status-label { font-size: 12px; color: #9ca3af; }
-
-    .badge {
-      padding: 3px 8px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .badge-checking { background: rgba(234,179,8,0.15); color: #fbbf24; }
-    .badge-online { background: rgba(34,197,94,0.15); color: #22c55e; }
-    .badge-offline { background: rgba(239,68,68,0.15); color: #ef4444; }
-
-    .section {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .section h2 {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #6366f1;
-      margin-bottom: 10px;
-    }
-
-    .step {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .step-num {
-      width: 20px;
-      height: 20px;
+    .header-avatar {
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: rgba(99,102,241,0.2);
-      color: #818cf8;
-      font-size: 11px;
-      font-weight: 700;
+      background: var(--olive);
+      border: 2px solid var(--olive-pale);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .step p { font-size: 12px; color: #9ca3af; line-height: 1.5; }
-    .step strong { color: #e2e8f0; }
+    .header-avatar svg { display: block; }
 
-    .model-list { display: flex; flex-direction: column; gap: 6px; }
+    .header-info { flex: 1; min-width: 0; }
 
-    .model-item {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(99,102,241,0.15);
-      border-radius: 8px;
-      padding: 8px 10px;
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 15px;
+      color: var(--olive-dust);
+      letter-spacing: 0.2px;
+      line-height: 1.2;
     }
 
-    .model-name { font-size: 12px; font-weight: 600; color: #c7d2fe; }
-    .model-desc { font-size: 11px; color: #6b7280; margin-top: 2px; }
-
-    .footer {
-      padding: 12px 16px;
-      text-align: center;
+    .header-sub {
+      font-size: 10px;
+      color: var(--sage);
+      letter-spacing: 0.4px;
+      margin-top: 2px;
     }
 
-    .footer p { font-size: 11px; color: #374151; }
+    /* ── Status Card ───────────────────────────────────────────── */
+    .section {
+      padding: 12px 14px 0;
+    }
 
-    button.check-btn {
-      width: 100%;
-      margin-top: 10px;
-      padding: 8px;
-      background: linear-gradient(135deg, #4338ca, #6366f1);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 12px;
+    .section-label {
+      font-size: 9px;
       font-weight: 600;
-      cursor: pointer;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--olive);
+      margin-bottom: 7px;
     }
+
+    .status-card {
+      background: var(--mist);
+      border: 1px solid var(--cream-dark);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .status-row:last-child { border-bottom: none; }
+
+    .status-label {
+      font-size: 12px;
+      color: var(--text-mid);
+      font-weight: 400;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .badge-offline {
+      background: #f3e8e0;
+      color: var(--terracotta);
+      border: 1px solid #e8c9b4;
+    }
+
+    .badge-online {
+      background: #e8eed8;
+      color: var(--olive);
+      border: 1px solid var(--olive-pale);
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .badge-offline .badge-dot { background: var(--terracotta); }
+    .badge-online  .badge-dot { background: var(--olive-light); box-shadow: 0 0 4px var(--olive-light); }
+
+    .badge-dash {
+      width: 10px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--olive-pale);
+    }
+
+    /* ── Check Status Button ───────────────────────────────────── */
+    .check-btn {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 9px 0;
+      background: var(--forest);
+      color: var(--olive-pale);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.12s;
+    }
+
+    .check-btn:hover  { background: var(--olive); color: #fff; }
+    .check-btn:active { transform: scale(0.97); }
+
+    /* ── How To Use ────────────────────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 0;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 8px 10px;
+      background: var(--mist);
+      border-radius: 10px;
+      border: 1px solid var(--cream-dark);
+    }
+
+    .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--forest);
+      color: var(--olive-pale);
+      font-size: 9px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step p {
+      font-size: 11.5px;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .step strong { color: var(--text-main); font-weight: 600; }
+
+    /* ── Models ────────────────────────────────────────────────── */
+    .model-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .model-card {
+      background: var(--mist);
+      border: 1px solid var(--cream-dark);
+      border-radius: 10px;
+      padding: 8px 11px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .model-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--olive-dust);
+      border: 1px solid var(--olive-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--olive);
+      font-size: 13px;
+    }
+
+    .model-info { flex: 1; min-width: 0; }
+
+    .model-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .model-sub {
+      font-size: 10px;
+      color: var(--text-soft);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .model-size {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--olive);
+      background: var(--olive-dust);
+      border: 1px solid var(--olive-pale);
+      padding: 2px 6px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer link ───────────────────────────────────────────── */
+    .footer {
+      padding: 10px 14px 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .footer a {
+      font-size: 11px;
+      color: var(--olive);
+      text-decoration: none;
+      border-bottom: 1px solid var(--olive-pale);
+      padding-bottom: 1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .footer a:hover { color: var(--forest); border-color: var(--forest); }
+
+    /* spacing util */
+    .gap-bot { padding-bottom: 10px; }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <div class="logo">🤖</div>
-    <div>
-      <h1>RAG Visual Chatbot</h1>
-      <p>Local AI · Free · Unlimited</p>
+    <div class="header-avatar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8d4a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </div>
+    <div class="header-info">
+      <div class="header-title">RAG Visual Chatbot</div>
+      <div class="header-sub">Local AI · Free · Unlimited</div>
     </div>
   </div>
 
-  <div class="status-section">
-    <div class="status-row">
-      <span class="status-label">Flask Backend</span>
-      <span class="badge badge-checking" id="backend-status">Checking...</span>
-    </div>
-    <div class="status-row">
-      <span class="status-label">Indexed Docs</span>
-      <span class="badge badge-checking" id="doc-count">—</span>
+  <!-- Status -->
+  <div class="section" style="padding-top:14px;">
+    <div class="section-label">Backend Status</div>
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Flask Backend</span>
+        <span class="status-badge badge-offline" id="backend-badge">
+          <span class="badge-dot"></span>
+          <span id="backend-text">Offline</span>
+        </span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Indexed Docs</span>
+        <span id="docs-badge" class="status-badge badge-offline">
+          <span class="badge-dash"></span>
+        </span>
+      </div>
     </div>
     <button class="check-btn" id="check-btn">Check Status</button>
   </div>
 
-  <div class="section">
-    <h2>How to Use</h2>
-    <div class="step"><div class="step-num">1</div><p>Hover over any <strong>image</strong> on a webpage</p></div>
-    <div class="step"><div class="step-num">2</div><p>Click <strong>Analyze Image</strong> on the tooltip</p></div>
-    <div class="step"><div class="step-num">3</div><p>Ask questions in the <strong>chatbot panel</strong></p></div>
-    <div class="step"><div class="step-num">4</div><p>AI retrieves context and answers using <strong>local LLM</strong></p></div>
-  </div>
-
-  <div class="section">
-    <h2>Free Local Models</h2>
-    <div class="model-list">
-      <div class="model-item">
-        <div class="model-name">BLIP (Image Captioning)</div>
-        <div class="model-desc">Salesforce/blip-image-captioning-base · ~990MB</div>
+  <!-- How to use -->
+  <div class="section" style="padding-top:14px;">
+    <div class="section-label">How to Use</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Hover over any <strong>image</strong> on a webpage</p>
       </div>
-      <div class="model-item">
-        <div class="model-name">all-MiniLM-L6-v2 (Embeddings)</div>
-        <div class="model-desc">sentence-transformers · ~80MB · No API key</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Click <strong>Analyse Image</strong> on the tooltip</p>
       </div>
-      <div class="model-item">
-        <div class="model-name">Llama 3.2 via Ollama (LLM)</div>
-        <div class="model-desc">Free, local, unlimited · ~2GB</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Ask questions in the <strong>chatbot panel</strong></p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>AI retrieves context and answers using <strong>local LLM</strong></p>
       </div>
     </div>
   </div>
 
-  <div class="footer">
-    <p>All processing is local. No data sent to external APIs.</p>
+  <!-- Free local models -->
+  <div class="section" style="padding-top:14px;" class="gap-bot">
+    <div class="section-label">Free Local Models</div>
+    <div class="model-list">
+
+      <div class="model-card">
+        <div class="model-icon">🖼️</div>
+        <div class="model-info">
+          <div class="model-name">BLIP (Image Captioning)</div>
+          <div class="model-sub">Salesforce/blip-image-captioning-base</div>
+        </div>
+        <span class="model-size">~990MB</span>
+      </div>
+
+      <div class="model-card">
+        <div class="model-icon">⚡</div>
+        <div class="model-info">
+          <div class="model-name">all-MiniLM-L6-v2 (Embeddings)</div>
+          <div class="model-sub">sentence-transformers · No API key</div>
+        </div>
+        <span class="model-size">~80MB</span>
+      </div>
+
+      <div class="model-card">
+        <div class="model-icon">🦙</div>
+        <div class="model-info">
+          <div class="model-name">Llama 3.2 via Ollama (LLM)</div>
+          <div class="model-sub">Free, local, unlimited</div>
+        </div>
+        <span class="model-size">~2GB</span>
+      </div>
+
+    </div>
   </div>
 
-  <script src="popup.js"></script>
+  <!-- Footer -->
+  <div class="footer">
+    <a href="https://console.groq.com" target="_blank">Get free Groq API key →</a>
+  </div>
+
+  <script>
+    async function checkStatus() {
+      const btn = document.getElementById('check-btn');
+      btn.textContent = 'Checking…';
+      btn.disabled = true;
+
+      const backendBadge = document.getElementById('backend-badge');
+      const backendText  = document.getElementById('backend-text');
+      const docsBadge    = document.getElementById('docs-badge');
+
+      try {
+        const res  = await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(3000) });
+        const data = res.ok ? await res.json() : null;
+
+        if (res.ok) {
+          backendBadge.className = 'status-badge badge-online';
+          backendBadge.innerHTML = '<span class="badge-dot"></span><span>Online</span>';
+        } else {
+          throw new Error('non-ok');
+        }
+
+        // Check indexed docs count if endpoint exists
+        try {
+          const docsRes  = await fetch('http://localhost:8000/stats', { signal: AbortSignal.timeout(2000) });
+          const docsData = docsRes.ok ? await docsRes.json() : null;
+          const count    = docsData?.total_chunks ?? '?';
+          docsBadge.className = 'status-badge badge-online';
+          docsBadge.innerHTML = `<span class="badge-dot"></span><span>${count} chunks</span>`;
+        } catch {
+          docsBadge.className = 'status-badge badge-offline';
+          docsBadge.innerHTML = '<span class="badge-dash"></span>';
+        }
+
+      } catch {
+        backendBadge.className = 'status-badge badge-offline';
+        backendBadge.innerHTML = '<span class="badge-dot"></span><span>Offline</span>';
+        docsBadge.className    = 'status-badge badge-offline';
+        docsBadge.innerHTML    = '<span class="badge-dash"></span>';
+      } finally {
+        btn.textContent = 'Check Status';
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('check-btn').addEventListener('click', checkStatus);
+
+    // Auto-check on open
+    checkStatus();
+  </script>
+
 </body>
 </html>
